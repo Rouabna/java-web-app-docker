@@ -51,7 +51,7 @@ pipeline {
                             sudo docker pull ${DOCKER_IMAGE}:latest
                             sudo docker stop java-web-app || true
                             sudo docker rm java-web-app || true
-                            sudo docker run -d --name java-web-app -p 8080:8080 ${DOCKER_IMAGE}:latest
+                            sudo docker run -d --name java-web-app -p 8083:8080 ${DOCKER_IMAGE}:latest
                             sudo docker ps | grep java-web-app
                         '
                     """
@@ -67,7 +67,7 @@ pipeline {
                         ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} '
                             sleep 10
                             sudo docker ps | grep java-web-app
-                            curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/java-web-app/ || echo "App starting..."
+                            curl -s -o /dev/null -w "%{http_code}" http://localhost:8083/java-web-app/ || echo "App starting..."
                         '
                     """
                 }
