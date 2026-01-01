@@ -48,11 +48,11 @@ pipeline {
                 sshagent(['deploy-server-ssh']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} '
-                            docker pull ${DOCKER_IMAGE}:latest
-                            docker stop java-web-app || true
-                            docker rm java-web-app || true
-                            docker run -d --name java-web-app -p 8080:8080 ${DOCKER_IMAGE}:latest
-                            docker ps | grep java-web-app
+                            sudo docker pull ${DOCKER_IMAGE}:latest
+                            sudo docker stop java-web-app || true
+                            sudo docker rm java-web-app || true
+                            sudo docker run -d --name java-web-app -p 8080:8080 ${DOCKER_IMAGE}:latest
+                            sudo docker ps | grep java-web-app
                         '
                     """
                 }
@@ -66,7 +66,7 @@ pipeline {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} '
                             sleep 10
-                            docker ps | grep java-web-app
+                            sudo docker ps | grep java-web-app
                             curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/java-web-app/ || echo "App starting..."
                         '
                     """
