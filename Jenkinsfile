@@ -44,15 +44,16 @@ pipeline {
 
         stage('Deploy to Server') {
             steps {
-                echo 'Deploying to remote server...'
+                echo 'Deploying to remote server with docker-compose...'
                 sshagent(['deploy-server-ssh']) {
                     sh """
+                        scp -o StrictHostKeyChecking=no docker-compose.yml ${DEPLOY_USER}@${DEPLOY_SERVER}:/tmp/
                         ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} '
+                            cd /tmp
+                            sudo docker-compose down || true
                             sudo docker pull ${DOCKER_IMAGE}:latest
-                            sudo docker stop java-web-app || true
-                            sudo docker rm java-web-app || true
-                            sudo docker run -d --name java-web-app -p 8083:8080 ${DOCKER_IMAGE}:latest
-                            sudo docker ps | grep java-web-app
+                            sudo docker-compose up -d
+                            sudo docker ps
                         '
                     """
                 }
@@ -65,8 +66,8 @@ pipeline {
                 sshagent(['deploy-server-ssh']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_SERVER} '
-                            sleep 10
-                            sudo docker ps | grep java-web-app
+                            sleep 30
+                            sudo docker ps
                             curl -s -o /dev/null -w "%{http_code}" http://localhost:8083/java-web-app/ || echo "App starting..."
                         '
                     """

@@ -1,12 +1,34 @@
 version: '3.8'
 
 services:
+  mysql:
+    image: mysql:8.0
+    container_name: employee-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: employeedb
+      MYSQL_USER: employee_user
+      MYSQL_PASSWORD: employee_pass
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
   java-app:
     image: rouabna/java-web-app:latest
     container_name: java-web-app
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8083:8080"
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_NAME=employeedb
+      - DB_USER=employee_user
+      - DB_PASSWORD=employee_pass
+    depends_on:
+      - mysql
     networks:
       - app-network
 
